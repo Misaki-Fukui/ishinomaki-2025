@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import type { QuestionChoice } from "../contents/shared/types";
 import { useMotionCapturePose } from "./MotionCaptureContext";
 
@@ -13,10 +14,44 @@ const GESTURE_LABELS: Record<(typeof GESTURE_ORDER)[number], string> = {
 
 type QuestionChoicesProps = {
   choices: QuestionChoice[];
+  selectedChoiceId?: string;
+  onSelect?: (choiceId: QuestionChoice["id"]) => void;
 };
 
-export default function QuestionChoices({ choices }: QuestionChoicesProps) {
+export default function QuestionChoices({
+  choices,
+  selectedChoiceId,
+  onSelect,
+}: QuestionChoicesProps) {
   const detectedPose = useMotionCapturePose();
+  const lastPoseRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const pose = typeof detectedPose === "string" ? detectedPose : "unknown";
+
+    if (lastPoseRef.current === pose) {
+      return;
+    }
+    lastPoseRef.current = pose;
+
+    if (!onSelect || pose === "unknown") {
+      return;
+    }
+
+    const gestureIndex = GESTURE_ORDER.indexOf(
+      pose as (typeof GESTURE_ORDER)[number],
+    );
+    if (gestureIndex < 0) {
+      return;
+    }
+
+    const targetChoice = choices[gestureIndex];
+    if (!targetChoice) {
+      return;
+    }
+
+    onSelect(targetChoice.id);
+  }, [choices, detectedPose, onSelect]);
 
   return (
     <ul className="space-y-3">
@@ -25,11 +60,16 @@ export default function QuestionChoices({ choices }: QuestionChoicesProps) {
         const gestureLabel =
           gesture !== undefined ? GESTURE_LABELS[gesture] ?? gesture : null;
         const isActive = gesture !== undefined && detectedPose === gesture;
+        const isSelected = selectedChoiceId === choice.id;
 
         const buttonClasses = [
           "w-full rounded-2xl border border-violet-200/80 bg-white px-5 py-4 text-left text-lg font-medium text-gray-800 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7153d6]",
           "hover:border-[#7153d6] hover:shadow",
-          isActive ? "border-emerald-400/80 bg-emerald-50/70 shadow-lg" : "",
+          isSelected
+            ? "border-emerald-500 bg-emerald-50 shadow-lg"
+            : isActive
+              ? "border-emerald-400/80 bg-emerald-50/70 shadow-lg"
+              : "",
         ]
           .filter(Boolean)
           .join(" ");
@@ -41,6 +81,15 @@ export default function QuestionChoices({ choices }: QuestionChoicesProps) {
           .filter(Boolean)
           .join(" / ");
 
+        const badgeClasses = [
+          "rounded-full px-3 py-1 text-xs font-semibold transition",
+          isActive || isSelected
+            ? "bg-emerald-500/20 text-emerald-700"
+            : "bg-[#7153d6]/10 text-[#4d3ab9]",
+        ]
+          .filter(Boolean)
+          .join(" ");
+
         return (
           <li key={choice.id}>
             <button
@@ -48,6 +97,9 @@ export default function QuestionChoices({ choices }: QuestionChoicesProps) {
               aria-label={ariaLabel}
               data-pose-gesture={gesture ?? undefined}
               className={buttonClasses}
+              onClick={() => onSelect?.(choice.id)}
+              aria-pressed={isSelected}
+              data-selected={isSelected ? "true" : undefined}
             >
               <div className="flex items-start justify-between gap-4">
                 <span className="flex flex-wrap items-center gap-3">
@@ -58,18 +110,7 @@ export default function QuestionChoices({ choices }: QuestionChoicesProps) {
                 </span>
 
                 {gestureLabel && (
-                  <span
-                    className={[
-                      "rounded-full px-3 py-1 text-xs font-semibold transition",
-                      isActive
-                        ? "bg-emerald-500/20 text-emerald-700"
-                        : "bg-[#7153d6]/10 text-[#4d3ab9]",
-                    ]
-                      .filter(Boolean)
-                      .join(" ")}
-                  >
-                    ポーズ: {gestureLabel}
-                  </span>
+                  <span className={badgeClasses}>ポーズ: {gestureLabel}</span>
                 )}
               </div>
 
@@ -77,12 +118,20 @@ export default function QuestionChoices({ choices }: QuestionChoicesProps) {
                 <span
                   className={[
                     "mt-3 block text-sm font-medium",
-                    isActive ? "text-emerald-700" : "text-gray-500",
+                    isSelected
+                      ? "text-emerald-700"
+                      : isActive
+                        ? "text-emerald-600"
+                        : "text-gray-500",
                   ]
                     .filter(Boolean)
                     .join(" ")}
                 >
-                  {isActive ? "ポーズを認識しました！" : "このポーズで選択できます"}
+                  {isSelected
+                    ? "選択済みの回答です"
+                    : isActive
+                      ? "ポーズを認識しました！"
+                      : "このポーズで選択できます"}
                 </span>
               )}
             </button>

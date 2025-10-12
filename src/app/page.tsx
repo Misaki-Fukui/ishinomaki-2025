@@ -1,32 +1,43 @@
-// src/app/page.tsx
-"use client";
+'use client';
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { questions } from "./lib/questions";
-import QuestionCard from "./components/QuestionCard";
 import MotionCaptureEmbed from "./components/MotionCaptureEmbed";
-
-type AnswersMap = Record<string, string>;
+import {
+  getTeamName,
+  initializeQuizSession,
+} from "./contents/shared/quiz-storage";
 
 export default function Page() {
   const router = useRouter();
 
   const [teamName, setTeamName] = useState("");
+  const [startAttempted, setStartAttempted] = useState(false);
+
+  useEffect(() => {
+    const existing = getTeamName();
+    if (existing) {
+      setTeamName(existing);
+    }
+  }, []);
 
   const handleStartClick = () => {
-    
-    //スタートボタンを押した時の処理を記述します
-    console.log("Starting with team name:", teamName);
+    setStartAttempted(true);
+    const normalized = teamName.trim();
+
+    if (!normalized) {
+      return;
+    }
+
+    initializeQuizSession(normalized);
+    router.push("/contents/Question1");
   };
 
   const handleRankingClick = () => {
-    //ランキングボタンを押した時の処理を記述します
-    console.log("Navigating to rankings");
-    //router.push("/mediapipe-samble/index.html")
-    router.push("/result");
+    router.push("/contents/Ranking1");
   };
+
+  const isTeamNameEmpty = teamName.trim().length === 0;
 
   return (
     <div className="bg-white w-full min-w-[1280px] min-h-[832px] flex flex-col">
@@ -59,11 +70,17 @@ export default function Page() {
             className="flex p-2.5 self-stretch w-full flex-[0_0_auto] border-[#c2c2c2] items-center gap-2.5 relative border border-solid text-[#808080] text-base [font-family:'Inter-Regular',Helvetica] font-normal tracking-[0] leading-[normal] placeholder:text-[#808080]"
             aria-label="チームの名前"
           />
+          {startAttempted && isTeamNameEmpty && (
+            <p className="text-sm text-rose-600">
+              チーム名を入力してください。
+            </p>
+          )}
         </div>
 
         <button
           onClick={handleStartClick}
-          className="inline-flex ml-[548px] w-[123px] h-[72px] mt-[124px] justify-center p-6 rounded-[100px] border-black items-center gap-2.5 relative border border-solid cursor-pointer hover:bg-black hover:text-white transition-colors"
+          disabled={isTeamNameEmpty}
+          className="inline-flex ml-[548px] w-[123px] h-[72px] mt-[124px] justify-center p-6 rounded-[100px] border-black items-center gap-2.5 relative border border-solid cursor-pointer hover:bg-black hover:text-white transition-colors disabled:cursor-not-allowed disabled:border-gray-300 disabled:text-gray-400 disabled:hover:bg-transparent disabled:hover:text-gray-400"
           aria-label="スタート"
         >
           <span className="relative w-fit mt-[-1.00px] [font-family:'Inter-Regular',Helvetica] font-normal text-xl tracking-[0] leading-[normal] whitespace-nowrap">

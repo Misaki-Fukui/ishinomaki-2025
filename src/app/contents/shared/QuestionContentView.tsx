@@ -1,8 +1,12 @@
+'use client';
+
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { MotionCaptureProvider } from "../../components/MotionCaptureContext";
 import MotionCaptureEmbed from "../../components/MotionCaptureEmbed";
 import QuestionChoices from "../../components/QuestionChoices";
 import type { QuestionContent } from "./types";
+import { getStoredAnswer, recordAnswer } from "./quiz-storage";
 
 type Props = {
   content: QuestionContent;
@@ -10,6 +14,7 @@ type Props = {
 
 export default function QuestionContentView({ content }: Props) {
   const {
+    id,
     title,
     question,
     choices,
@@ -17,7 +22,41 @@ export default function QuestionContentView({ content }: Props) {
     progressLabel,
     nextHref,
     nextLabel = "回答する",
+    correctChoiceId,
   } = content;
+
+  const [selectedChoiceId, setSelectedChoiceId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const stored = getStoredAnswer(id);
+    if (stored) {
+      setSelectedChoiceId(stored.choiceId);
+    } else {
+      setSelectedChoiceId(null);
+    }
+  }, [id]);
+
+  const handleSelect = useCallback(
+    (choiceId: string) => {
+      setSelectedChoiceId((previous) => {
+        if (previous === choiceId) {
+          return previous;
+        }
+
+        recordAnswer(id, choiceId, choiceId === correctChoiceId);
+        return choiceId;
+      });
+    },
+    [correctChoiceId, id],
+  );
+
+  const selectedChoiceLabel = useMemo(() => {
+    if (!selectedChoiceId) {
+      return null;
+    }
+    const matched = choices.find((choice) => choice.id === selectedChoiceId);
+    return matched?.label ?? null;
+  }, [choices, selectedChoiceId]);
 
   return (
     <main className="mx-auto flex min-h-[832px] w-full min-w-[320px] max-w-6xl flex-col gap-10 bg-white px-6 py-12 md:px-12 lg:px-16">
@@ -36,7 +75,24 @@ export default function QuestionContentView({ content }: Props) {
               {question}
             </h2>
 
-            <QuestionChoices choices={choices} />
+            <QuestionChoices
+              choices={choices}
+              onSelect={handleSelect}
+              selectedChoiceId={selectedChoiceId ?? undefined}
+            />
+
+            <div className="rounded-2xl border border-violet-200/60 bg-white/60 px-4 py-3 text-sm text-gray-600">
+              {selectedChoiceLabel ? (
+                <span>
+                  現在の選択:{" "}
+                  <span className="font-semibold text-[#4d3ab9]">
+                    {selectedChoiceLabel}
+                  </span>
+                </span>
+              ) : (
+                <span>ポーズまたはボタンのクリックで回答を選択してください。</span>
+              )}
+            </div>
           </div>
 
           <div className="flex items-center justify-center">

@@ -10,6 +10,7 @@ import type {
 export const answerContents: Record<string, AnswerContent> = {
   Answer1: {
     id: "Answer1",
+    questionId: "Question1",
     shortAnswer: "石ノ森章太郎",
     lead: "石ノ森萬画館は、漫画家の石ノ森章太郎さんを記念して作られました。",
     paragraphs: [
@@ -24,6 +25,7 @@ export const answerContents: Record<string, AnswerContent> = {
   },
   Answer2: {
     id: "Answer2",
+    questionId: "Question2",
     shortAnswer: "サバ",
     lead:
       "石巻ラーメン「サバだしラーメン」は、石巻市飯野川地区発祥のご当地ラーメンです。",
@@ -38,6 +40,7 @@ export const answerContents: Record<string, AnswerContent> = {
   },
   Answer3: {
     id: "Answer3",
+    questionId: "Question3",
     shortAnswer: "金華山道",
     lead:
       "石巻の金華山道は、2022年7月に「金華山詣」と共に日本遺産「みちのくGOLD浪漫」に追加認定されました。",
@@ -53,6 +56,7 @@ export const answerContents: Record<string, AnswerContent> = {
   },
   Answer4: {
     id: "Answer4",
+    questionId: "Question4",
     shortAnswer: "笹かまぼこ",
     lead: "石巻の笹かまぼこは、宮城県を代表する伝統的な水産加工品。",
     paragraphs: [
@@ -67,6 +71,7 @@ export const answerContents: Record<string, AnswerContent> = {
   },
   Answer5: {
     id: "Answer5",
+    questionId: "Question5",
     shortAnswer: "宮城県の石巻魚市場",
     lead:
       "東日本大震災の被害から再建された石巻売場が、「最も長い魚市場」として令和3年9月21日にギネス世界記録に認定されました。",
@@ -85,6 +90,7 @@ export const answerContents: Record<string, AnswerContent> = {
   },
   Answer6: {
     id: "Answer6",
+    questionId: "Question6",
     shortAnswer: "金華サバ",
     lead:
       "「金華サバ」は、三陸沖の金華山周辺の、特に栄養豊富な漁場で獲れるサバのことで、極めて脂の乗りが良いのが特徴です。",
@@ -98,6 +104,7 @@ export const answerContents: Record<string, AnswerContent> = {
   },
   Answer7: {
     id: "Answer7",
+    questionId: "Question7",
     shortAnswer: "石ノ森章太郎",
     lead:
       "石ノ森章太郎は、宮城県石巻市出身の、日本を代表する漫画家の一人です。",
@@ -111,6 +118,7 @@ export const answerContents: Record<string, AnswerContent> = {
   },
   Answer8: {
     id: "Answer8",
+    questionId: "Question8",
     shortAnswer: "赤飯まんじゅう",
     lead:
       "石巻赤飯まんじゅうとは、ほんのり甘い皮の中に赤飯が包まれた、宮城県石巻市発祥の和菓子です。",
@@ -125,6 +133,7 @@ export const answerContents: Record<string, AnswerContent> = {
   },
   Answer9: {
     id: "Answer9",
+    questionId: "Question9",
     shortAnswer: "石巻港",
     lead: "慶長遣欧使節団が出航したのは、石巻港です。",
     paragraphs: [
@@ -137,6 +146,7 @@ export const answerContents: Record<string, AnswerContent> = {
   },
   Answer10: {
     id: "Answer10",
+    questionId: "Question10",
     shortAnswer: "サン・ファン・バウティスタ号",
     lead:
       "サン・ファン・バウティスタ号は、慶長遣欧使節団を乗せて石巻からヨーロッパへ向かったガレオン船を復元したものです。",
@@ -150,6 +160,7 @@ export const answerContents: Record<string, AnswerContent> = {
   },
   Answer11: {
     id: "Answer11",
+    questionId: "Question11",
     shortAnswer: "宮城県慶長使節船ミュージアム",
     lead:
       "宮城県慶長使節船ミュージアム（サン・ファン館）は、伊達政宗の命を受けてヨーロッパへ渡った慶長遣欧使節団の歴史を伝える博物館です。",
@@ -179,6 +190,7 @@ export const questionContents: Record<string, QuestionContent> = {
     progressLabel: "質問 1/5",
     timerSeconds: 5,
     nextHref: "/contents/Answer1",
+    correctChoiceId: "b",
   },
   Question2: {
     id: "Question2",
@@ -193,6 +205,7 @@ export const questionContents: Record<string, QuestionContent> = {
     image: "/contents/Question2/image-3.png",
     timerSeconds: 5,
     nextHref: "/contents/Answer2",
+    correctChoiceId: "c",
   },
   Question3: {
     id: "Question3",
@@ -207,6 +220,7 @@ export const questionContents: Record<string, QuestionContent> = {
     image: "/contents/Question3/image-3.png",
     timerSeconds: 5,
     nextHref: "/contents/Answer3",
+    correctChoiceId: "b",
   },
   Question4: {
     id: "Question4",
@@ -221,6 +235,7 @@ export const questionContents: Record<string, QuestionContent> = {
     image: "/contents/Question4/image-3.png",
     timerSeconds: 5,
     nextHref: "/contents/Answer4",
+    correctChoiceId: "b",
   },
   Question5: {
     id: "Question5",
@@ -235,6 +250,7 @@ export const questionContents: Record<string, QuestionContent> = {
     image: "/contents/Question5/image-3.png",
     timerSeconds: 5,
     nextHref: "/contents/Answer5",
+    correctChoiceId: "b",
   },
   Question6: {
     id: "Question6",
@@ -249,6 +265,7 @@ export const questionContents: Record<string, QuestionContent> = {
     image: "/contents/Question6/image-3.png",
     timerSeconds: 5,
     nextHref: "/contents/Answer6",
+    correctChoiceId: "a",
   },
   Question7: {
     id: "Question7",
@@ -263,6 +280,7 @@ export const questionContents: Record<string, QuestionContent> = {
     image: "/contents/Question7/image-3.png",
     timerSeconds: 5,
     nextHref: "/contents/Answer7",
+    correctChoiceId: "a",
   },
   Question8: {
     id: "Question8",
@@ -276,6 +294,7 @@ export const questionContents: Record<string, QuestionContent> = {
     image: "/contents/Question8/image-3.png",
     timerSeconds: 5,
     nextHref: "/contents/Answer8",
+    correctChoiceId: "a",
   },
   Question9: {
     id: "Question9",
@@ -290,6 +309,7 @@ export const questionContents: Record<string, QuestionContent> = {
     image: "/contents/Question9/image-3.png",
     timerSeconds: 5,
     nextHref: "/contents/Answer9",
+    correctChoiceId: "b",
   },
   Question10: {
     id: "Question10",
@@ -304,6 +324,7 @@ export const questionContents: Record<string, QuestionContent> = {
     image: "/contents/Question10/image-3.png",
     timerSeconds: 5,
     nextHref: "/contents/Answer10",
+    correctChoiceId: "c",
   },
   Question11: {
     id: "Question11",
@@ -318,6 +339,7 @@ export const questionContents: Record<string, QuestionContent> = {
     image: "/contents/Question11/image-3.png",
     timerSeconds: 5,
     nextHref: "/contents/Answer11",
+    correctChoiceId: "a",
   },
 };
 

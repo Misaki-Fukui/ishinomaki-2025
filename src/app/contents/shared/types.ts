@@ -1,5 +1,6 @@
 export type AnswerContent = {
   id: string;
+  questionId: string;
   shortAnswer: string;
   lead: string;
   paragraphs: string[];
@@ -26,6 +27,7 @@ export type QuestionContent = {
   progressLabel?: string;
   nextHref?: string;
   nextLabel?: string;
+  correctChoiceId: string;
 };
 
 export type CountdownContent = {
@@ -41,7 +43,7 @@ export type RankingEntry = {
   teamName: string;
   correctCount: number;
   totalQuestions: number;
-  elapsedSeconds: number;
+  elapsedSeconds?: number;
 };
 
 export type RankingContent = {
