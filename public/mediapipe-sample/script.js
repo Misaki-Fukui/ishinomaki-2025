@@ -349,6 +349,9 @@ function updateGestureDisplay(currentGesture, poseCount) {
     applyGestureStatus(gestureToShow || "unknown", poseCount);
 }
 
+//ES Modulesでコールされているので、letで書くとグローバルアクセスできない
+globalThis.detectedPose="";
+
 // ポーズ検出と描画
 async function detectPose() {
     if (!webcamRunning || !poseLandmarker) {
@@ -381,6 +384,8 @@ async function detectPose() {
 
             const gesture = classifyGesture(primaryLandmarks);
             updateGestureDisplay(gesture, poseCount);
+
+            globalThis.detectedPose=gesture.toString();
         } else if (poseCount > 1) {
             const primaryLandmarks = results.landmarks[0];
             drawSkeleton(primaryLandmarks);
@@ -393,10 +398,12 @@ async function detectPose() {
             updatePoseLabelText("unknown");
             lastStableGesture = null;
             lastStableTimestamp = 0;
+
+            globalThis.detectedPose="";
         } else {
             resetHandStatus();
+            globalThis.detectedPose="";
         }
-
         canvasCtx.restore();
     }
 

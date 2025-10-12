@@ -4,6 +4,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Script from "next/script";
 import { questions } from "./lib/questions";
 import QuestionCard from "./components/QuestionCard";
 
@@ -15,6 +16,7 @@ export default function Page() {
   const [teamName, setTeamName] = useState("");
 
   const handleStartClick = () => {
+    
     //スタートボタンを押した時の処理を記述します
     console.log("Starting with team name:", teamName);
   };
@@ -22,7 +24,8 @@ export default function Page() {
   const handleRankingClick = () => {
     //ランキングボタンを押した時の処理を記述します
     console.log("Navigating to rankings");
-    //document.href("q1/page.tsx")
+    //router.push("/mediapipe-samble/index.html")
+    router.push("/result");
   };
 
   return (
@@ -36,8 +39,38 @@ export default function Page() {
           石巻のことどこまで知っているの?
         </h2>
       </header>
-
+      
+      {/* モーションキャプチャ部分　はじめ */}
+      <script
+        type="importmap"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            imports: {
+              "@mediapipe/tasks-vision":
+                "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/vision_bundle.mjs",
+            },
+          }),
+        }}
+      />
+      <Script src="/mediapipe-sample/script.js" type="module" strategy="afterInteractive" />
       <main className="flex flex-col items-center">
+        <div className="container">
+          <div id="pose_label">ポーズ: -</div>
+          <video id="webcam" autoPlay playsInline muted></video>
+          <canvas id="output_canvas"></canvas>
+          <div
+            id="hand_status"
+            style={{
+              fontSize: "24px",
+              fontWeight: "bold",
+              marginTop: "20px",
+            }}
+          >
+            上半身をカメラに映してください
+          </div>
+        </div>
+        {/* モーションキャプチャ部分　おわり */}
+
         <div className="flex ml-[442px] w-[375px] h-[70px] relative mt-32 flex-col items-start gap-3">
           <label
             htmlFor="team-name-input"
