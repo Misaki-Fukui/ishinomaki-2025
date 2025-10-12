@@ -1,15 +1,16 @@
-import { PoseLandmarker, FilesetResolver, DrawingUtils } from "@mediapipe/tasks-vision";
+import { PoseLandmarker, FilesetResolver } from "@mediapipe/tasks-vision";
 
-// 各要素の取得
-const video = document.getElementById('webcam');
-const canvasElement = document.getElementById('output_canvas');
-const canvasCtx = canvasElement.getContext('2d');
-const handStatus = document.getElementById('hand_status');
-const poseLabel = document.getElementById('pose_label');
-
-let poseLandmarker;
+let video = null;
+let canvasElement = null;
+let canvasCtx = null;
+let handStatus = null;
+let poseLabel = null;
+let poseLandmarker = null;
 let webcamRunning = false;
 let lastVideoTime = -1;
+let animationFrameId = null;
+let activeStream = null;
+let isInitializing = false;
 
 const GESTURE_HISTORY_LENGTH = 6;
 const gestureHistory = [];
@@ -79,6 +80,10 @@ async function initCamera() {
     debugLog('=== カメラ初期化開始 ===');
 
     try {
+        if (!video || !canvasElement) {
+            throw new Error("モーションキャプチャ用のDOM要素が見つかりません");
+        }
+
         const stream = await getUserMedia({
             video: {
                 width: 640,
@@ -87,6 +92,7 @@ async function initCamera() {
             }
         });
 
+        activeStream = stream;
         video.srcObject = stream;
 
         await new Promise((resolve) => {
@@ -94,6 +100,11 @@ async function initCamera() {
                 debugLog(`✓ ビデオロード完了: ${video.videoWidth}x${video.videoHeight}`);
 
                 // キャンバスサイズ設定
+                canvasCtx = canvasElement.getContext('2d');
+                if (!canvasCtx) {
+                    throw new Error("キャンバスコンテキストを初期化できません");
+                }
+
                 canvasElement.width = video.videoWidth;
                 canvasElement.height = video.videoHeight;
 
@@ -108,8 +119,10 @@ async function initCamera() {
 
     } catch (error) {
         debugLog(`カメラ初期化エラー: ${error.message}`);
-        handStatus.innerText = `カメラエラー: ${error.message}`;
-        handStatus.style.color = '#FF0000';
+        if (handStatus) {
+            handStatus.innerText = `カメラエラー: ${error.message}`;
+            handStatus.style.color = '#FF0000';
+        }
         throw error;
     }
 }
@@ -119,7 +132,14 @@ async function initPoseLandmarker() {
     debugLog('=== MediaPipe Pose Landmarker初期化開始 ===');
 
     try {
-        handStatus.innerText = "AIモデルを読み込み中...";
+        if (handStatus) {
+            handStatus.innerText = "AIモデルを読み込み中...";
+        }
+
+        if (poseLandmarker) {
+            poseLandmarker.close();
+            poseLandmarker = null;
+        }
 
         // FilesetResolverでWasmファイルのパスを設定
         const vision = await FilesetResolver.forVisionTasks(
@@ -142,7 +162,9 @@ async function initPoseLandmarker() {
         });
 
         debugLog('✓ PoseLandmarker作成完了');
-        handStatus.innerText = "準備完了";
+        if (handStatus) {
+            handStatus.innerText = "準備完了";
+        }
 
     } catch (error) {
         debugLog(`PoseLandmarker初期化エラー: ${error.message}`);
@@ -289,6 +311,11 @@ function updatePoseLabelText(gesture) {
 }
 
 function applyGestureStatus(gesture, poseCount) {
+    if (!handStatus) {
+        updatePoseLabelText(gesture);
+        return;
+    }
+
     const setStatus = (message, color) => {
         handStatus.innerText = message;
         handStatus.style.color = color;
@@ -320,9 +347,11 @@ function applyGestureStatus(gesture, poseCount) {
 
 function resetHandStatus() {
     clearGestureHistory();
-    handStatus.innerText = DEFAULT_STATUS_MESSAGE;
-    handStatus.style.color = '#FF6600';
-    handStatus.style.fontSize = '24px';
+    if (handStatus) {
+        handStatus.innerText = DEFAULT_STATUS_MESSAGE;
+        handStatus.style.color = '#FF6600';
+        handStatus.style.fontSize = '24px';
+    }
     updatePoseLabelText("unknown");
     lastStableGesture = null;
     lastStableTimestamp = 0;
@@ -354,7 +383,7 @@ globalThis.detectedPose="";
 
 // ポーズ検出と描画
 async function detectPose() {
-    if (!webcamRunning || !poseLandmarker) {
+    if (!webcamRunning || !poseLandmarker || !video || !canvasElement || !canvasCtx) {
         return;
     }
 
@@ -392,9 +421,11 @@ async function detectPose() {
             drawLandmarks(primaryLandmarks);
 
             clearGestureHistory();
-            handStatus.innerText = "1人だけ映してください";
-            handStatus.style.color = '#FFA500';
-            handStatus.style.fontSize = '24px';
+            if (handStatus) {
+                handStatus.innerText = "1人だけ映してください";
+                handStatus.style.color = '#FFA500';
+                handStatus.style.fontSize = '24px';
+            }
             updatePoseLabelText("unknown");
             lastStableGesture = null;
             lastStableTimestamp = 0;
@@ -407,7 +438,7 @@ async function detectPose() {
         canvasCtx.restore();
     }
 
-    requestAnimationFrame(detectPose);
+    animationFrameId = requestAnimationFrame(detectPose);
 }
 
 // ランドマーク描画
@@ -467,13 +498,102 @@ function drawSkeleton(landmarks) {
 }
 
 // メイン初期化処理
+function assignElements() {
+    video = document.getElementById('webcam');
+    canvasElement = document.getElementById('output_canvas');
+    handStatus = document.getElementById('hand_status');
+    poseLabel = document.getElementById('pose_label');
+
+    if (!video || !canvasElement || !handStatus || !poseLabel) {
+        debugLog('必要なDOM要素が見つからないため、初期化を保留します');
+        return false;
+    }
+
+    canvasCtx = canvasElement.getContext('2d');
+    if (!canvasCtx) {
+        debugLog('キャンバスコンテキストの初期化に失敗しました');
+        return false;
+    }
+
+    return true;
+}
+
+async function dispose() {
+    debugLog('=== モーションキャプチャのリソースを開放します ===');
+
+    webcamRunning = false;
+
+    if (animationFrameId !== null) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+    }
+
+    if (poseLandmarker) {
+        try {
+            poseLandmarker.close();
+        } catch (error) {
+            console.warn('PoseLandmarkerの開放に失敗しました', error);
+        }
+        poseLandmarker = null;
+    }
+
+    if (activeStream) {
+        activeStream.getTracks().forEach((track) => {
+            try {
+                track.stop();
+            } catch (error) {
+                console.warn('メディアトラックの停止に失敗しました', error);
+            }
+        });
+        activeStream = null;
+    }
+
+    if (video) {
+        try {
+            video.pause();
+        } catch (error) {
+            console.warn('ビデオの一時停止に失敗しました', error);
+        }
+        video.onloadedmetadata = null;
+        video.srcObject = null;
+    }
+
+    lastVideoTime = -1;
+    clearGestureHistory();
+    lastStableGesture = null;
+    lastStableTimestamp = 0;
+
+    video = null;
+    canvasElement = null;
+    canvasCtx = null;
+    handStatus = null;
+    poseLabel = null;
+
+    return true;
+}
+
 async function initialize() {
+    if (isInitializing) {
+        debugLog('初期化処理が進行中のためスキップします');
+        return false;
+    }
+
+    isInitializing = true;
     debugLog('=== アプリケーション初期化開始 ===');
 
     try {
+        await dispose();
+
+        if (!assignElements()) {
+            return false;
+        }
+
         // ステップ1: カメラ初期化
         updatePoseLabelText("unknown");
-        handStatus.innerText = "カメラを起動中...";
+        if (handStatus) {
+            handStatus.innerText = "カメラを起動中...";
+            handStatus.style.color = '#FF6600';
+        }
         await initCamera();
 
         // ステップ2: PoseLandmarker初期化
@@ -484,14 +604,23 @@ async function initialize() {
         detectPose();
 
         debugLog('✓ アプリケーション初期化完了');
+        return true;
 
     } catch (error) {
         debugLog(`初期化失敗: ${error.message}`);
-        handStatus.innerText = `エラー: ${error.message}`;
-        handStatus.style.color = '#FF0000';
+        if (handStatus) {
+            handStatus.innerText = `エラー: ${error.message}`;
+            handStatus.style.color = '#FF0000';
+        }
         console.error('詳細エラー:', error);
+        return false;
+    } finally {
+        isInitializing = false;
     }
 }
+
+globalThis.initializeMotionCapture = initialize;
+globalThis.disposeMotionCapture = dispose;
 
 // ページロード時に初期化
 //window.addEventListener('DOMContentLoaded', initialize);

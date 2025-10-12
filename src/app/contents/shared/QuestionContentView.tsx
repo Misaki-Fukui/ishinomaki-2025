@@ -1,6 +1,6 @@
-import Image from "next/image";
 import Link from "next/link";
 import type { QuestionContent } from "./types";
+import MotionCaptureEmbed from "../../components/MotionCaptureEmbed";
 
 type Props = {
   content: QuestionContent;
@@ -12,7 +12,6 @@ export default function QuestionContentView({ content }: Props) {
     question,
     choices,
     image,
-    imageAlt,
     timerSeconds = 5,
     progressLabel,
     nextHref,
@@ -55,15 +54,7 @@ export default function QuestionContentView({ content }: Props) {
 
         {image ? (
           <div className="flex items-center justify-center">
-            <div className="relative h-60 w-full max-w-sm overflow-hidden rounded-3xl border border-dashed border-violet-200 bg-violet-50/60">
-              <Image
-                fill
-                sizes="(max-width: 768px) 320px, 360px"
-                src={image}
-                alt={imageAlt ?? title}
-                className="object-cover"
-              />
-            </div>
+            <MotionCaptureEmbed className="w-full max-w-md border-violet-200/80 bg-violet-950/40" />
           </div>
         ) : (
           <div className="flex items-center justify-center">
