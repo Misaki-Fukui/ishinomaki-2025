@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediaPipe Pose Landmarker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>MediaPipe Pose Landmarker</h1>
+    <div class="container">
+        <div id="pose_label">ポーズ: -</div>
+        <video id="webcam" autoplay playsinline muted></video>
+        <canvas id="output_canvas"></canvas>
+        <div id="hand_status" style="font-size: 24px; font-weight: bold; margin-top: 20px;">上半身をカメラに映してください</div>
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "@mediapipe/tasks-vision": "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/vision_bundle.mjs"
+            }
+        }
+    </script>
+    <script type="module" src="script.js"></script>
+</body>
+</html>
