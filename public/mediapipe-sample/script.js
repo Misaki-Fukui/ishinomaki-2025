@@ -11,6 +11,11 @@ let lastVideoTime = -1;
 let animationFrameId = null;
 let activeStream = null;
 let isInitializing = false;
+let lastEmittedGesture = null;
+
+if (typeof globalThis.detectedPose !== "string") {
+    globalThis.detectedPose = "unknown";
+}
 
 const GESTURE_HISTORY_LENGTH = 6;
 const gestureHistory = [];
@@ -54,6 +59,25 @@ let lastStableTimestamp = 0;
 function debugLog(message) {
     const timestamp = new Date().toISOString().substring(11, 19);
     console.log(`[${timestamp}] ${message}`);
+}
+
+function emitPoseChange(gesture) {
+    const normalized = typeof gesture === "string" && gesture.trim().length > 0 ? gesture : "unknown";
+
+    if (lastEmittedGesture === normalized) {
+        return;
+    }
+
+    lastEmittedGesture = normalized;
+    globalThis.detectedPose = normalized;
+
+    if (typeof window !== "undefined" && typeof window.dispatchEvent === "function") {
+        window.dispatchEvent(
+            new CustomEvent("motioncaptureposechange", {
+                detail: { gesture: normalized },
+            })
+        );
+    }
 }
 
 // ステップ1: カメラとキャンバス初期化
@@ -355,6 +379,7 @@ function resetHandStatus() {
     updatePoseLabelText("unknown");
     lastStableGesture = null;
     lastStableTimestamp = 0;
+    emitPoseChange("unknown");
 }
 
 function updateGestureDisplay(currentGesture, poseCount) {
@@ -376,10 +401,8 @@ function updateGestureDisplay(currentGesture, poseCount) {
 
     const gestureToShow = stableGesture || (holdActive ? lastStableGesture : "unknown");
     applyGestureStatus(gestureToShow || "unknown", poseCount);
+    emitPoseChange(gestureToShow || "unknown");
 }
-
-//ES Modulesでコールされているので、letで書くとグローバルアクセスできない
-globalThis.detectedPose="";
 
 // ポーズ検出と描画
 async function detectPose() {
@@ -413,8 +436,6 @@ async function detectPose() {
 
             const gesture = classifyGesture(primaryLandmarks);
             updateGestureDisplay(gesture, poseCount);
-
-            globalThis.detectedPose=gesture.toString();
         } else if (poseCount > 1) {
             const primaryLandmarks = results.landmarks[0];
             drawSkeleton(primaryLandmarks);
@@ -430,10 +451,9 @@ async function detectPose() {
             lastStableGesture = null;
             lastStableTimestamp = 0;
 
-            globalThis.detectedPose="";
+            emitPoseChange("unknown");
         } else {
             resetHandStatus();
-            globalThis.detectedPose="";
         }
         canvasCtx.restore();
     }
@@ -568,6 +588,8 @@ async function dispose() {
     canvasCtx = null;
     handStatus = null;
     poseLabel = null;
+
+    emitPoseChange("unknown");
 
     return true;
 }

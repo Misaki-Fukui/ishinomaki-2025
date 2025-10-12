@@ -1,6 +1,8 @@
 import Link from "next/link";
-import type { QuestionContent } from "./types";
+import { MotionCaptureProvider } from "../../components/MotionCaptureContext";
 import MotionCaptureEmbed from "../../components/MotionCaptureEmbed";
+import QuestionChoices from "../../components/QuestionChoices";
+import type { QuestionContent } from "./types";
 
 type Props = {
   content: QuestionContent;
@@ -11,7 +13,6 @@ export default function QuestionContentView({ content }: Props) {
     title,
     question,
     choices,
-    image,
     timerSeconds = 5,
     progressLabel,
     nextHref,
@@ -28,42 +29,21 @@ export default function QuestionContentView({ content }: Props) {
         <h1 className="mt-3 text-3xl font-bold lg:text-4xl">{title}</h1>
       </header>
 
-      <section className="grid gap-10 rounded-3xl border border-violet-200/60 bg-white/80 p-6 shadow-sm backdrop-blur lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] lg:p-10">
-        <div className="flex flex-col gap-6">
-          <h2 className="text-xl font-semibold text-gray-900 lg:text-2xl">
-            {question}
-          </h2>
+      <MotionCaptureProvider>
+        <section className="grid gap-10 rounded-3xl border border-violet-200/60 bg-white/80 p-6 shadow-sm backdrop-blur lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] lg:p-10">
+          <div className="flex flex-col gap-6">
+            <h2 className="text-xl font-semibold text-gray-900 lg:text-2xl">
+              {question}
+            </h2>
 
-          <ul className="space-y-3">
-            {choices.map((choice) => (
-              <li key={choice.id}>
-                <button
-                  type="button"
-                  className="w-full rounded-2xl border border-violet-200/80 bg-white px-5 py-4 text-left text-lg font-medium text-gray-800 transition hover:border-[#7153d6] hover:shadow"
-                  aria-label={`${choice.id} ${choice.label}`}
-                >
-                  <span className="mr-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#7153d6]/15 text-base font-semibold text-[#7153d6]">
-                    {choice.id.toUpperCase()}.
-                  </span>
-                  {choice.label}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
+            <QuestionChoices choices={choices} />
+          </div>
 
-        {image ? (
           <div className="flex items-center justify-center">
             <MotionCaptureEmbed className="w-full max-w-md border-violet-200/80 bg-violet-950/40" />
           </div>
-        ) : (
-          <div className="flex items-center justify-center">
-            <div className="rounded-2xl border border-dashed border-violet-200/80 bg-violet-50/50 px-6 py-8 text-center text-sm text-violet-500">
-              写真を追加できます
-            </div>
-          </div>
-        )}
-      </section>
+        </section>
+      </MotionCaptureProvider>
 
       {nextHref && (
         <footer className="mt-auto flex justify-end">
