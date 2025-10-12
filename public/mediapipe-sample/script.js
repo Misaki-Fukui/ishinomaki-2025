@@ -494,4 +494,12 @@ async function initialize() {
 }
 
 // ページロード時に初期化
-window.addEventListener('DOMContentLoaded', initialize);
+//window.addEventListener('DOMContentLoaded', initialize);
+
+//初期化タイミング遅延
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initialize);
+} else {
+  // すでに読み込み済み（Next.jsのSPA遷移・hydrate後など）
+  initialize();
+}
