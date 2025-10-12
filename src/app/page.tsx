@@ -15,11 +15,14 @@ export default function Page() {
   const [teamName, setTeamName] = useState("");
 
   const handleStartClick = () => {
+    //スタートボタンを押した時の処理を記述します
     console.log("Starting with team name:", teamName);
   };
 
   const handleRankingClick = () => {
+    //ランキングボタンを押した時の処理を記述します
     console.log("Navigating to rankings");
+    //document.href("q1/page.tsx")
   };
 
   return (
