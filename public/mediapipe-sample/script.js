@@ -355,9 +355,11 @@ function classifyGesture(landmarks) {
         return "y_pose";
     }
 
+    /*
     if (leftHandRaised && rightHandRaised && wristsAboveHead) {
         return "banzai";
     }
+    */
 
     if (leftArmVisible && rightArmVisible) {
         const leftHorizontalReach = horizontalDistance(leftWrist, leftShoulder);
