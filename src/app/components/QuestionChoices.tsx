@@ -4,10 +4,10 @@ import { useEffect, useRef } from "react";
 import type { QuestionChoice } from "../contents/shared/types";
 import { useMotionCapturePose } from "./MotionCaptureContext";
 
-const GESTURE_ORDER = ["banzai", "t_pose", "cross_arms"] as const;
+const GESTURE_ORDER = ["y_pose", "t_pose", "cross_arms"] as const;
 
 const GESTURE_LABELS: Record<(typeof GESTURE_ORDER)[number], string> = {
-  banzai: "バンザイ",
+  y_pose: "Yポーズ",
   t_pose: "Tポーズ",
   cross_arms: "クロスポーズ",
 };

@@ -12,6 +12,7 @@ let animationFrameId = null;
 let activeStream = null;
 let isInitializing = false;
 let lastEmittedGesture = null;
+let latestPrimaryLandmarks = null;
 
 if (typeof globalThis.detectedPose !== "string") {
     globalThis.detectedPose = "unknown";
@@ -36,6 +37,12 @@ const GESTURE_LABEL_STYLES = {
         text: "Tポーズ",
         color: "#60a5fa",
         shadow: "0 10px 22px rgba(96, 165, 250, 0.35)",
+        opacity: 1
+    },
+    y_pose: {
+        text: "Yポーズ",
+        color: "#fbbf24",
+        shadow: "0 10px 22px rgba(251, 191, 36, 0.35)",
         opacity: 1
     },
     cross_arms: {
@@ -234,6 +241,55 @@ function recordGesture(gesture) {
     }
 }
 
+function formatLandmarkForDebug(landmark) {
+    if (!landmark) {
+        return null;
+    }
+    const formatValue = (value) =>
+        typeof value === "number" ? Number(value.toFixed(4)) : value;
+
+    return {
+        x: formatValue(landmark.x),
+        y: formatValue(landmark.y),
+        z: formatValue(landmark.z),
+        visibility: landmark.visibility !== undefined
+            ? formatValue(landmark.visibility)
+            : undefined
+    };
+}
+
+function extractUpperBodyLandmarks(landmarks) {
+    if (!landmarks || landmarks.length < 17) {
+        return null;
+    }
+
+    return {
+        nose: formatLandmarkForDebug(landmarks[0]),
+        leftShoulder: formatLandmarkForDebug(landmarks[11]),
+        rightShoulder: formatLandmarkForDebug(landmarks[12]),
+        leftElbow: formatLandmarkForDebug(landmarks[13]),
+        rightElbow: formatLandmarkForDebug(landmarks[14]),
+        leftWrist: formatLandmarkForDebug(landmarks[15]),
+        rightWrist: formatLandmarkForDebug(landmarks[16])
+    };
+}
+
+function logUpperBodyLandmarks(landmarks = latestPrimaryLandmarks) {
+    if (!landmarks) {
+        console.warn("ログ出力用のポーズランドマークが見つかりません。ポーズ検出が有効になっているか確認してください。");
+        return null;
+    }
+
+    const keyLandmarks = extractUpperBodyLandmarks(landmarks);
+    if (!keyLandmarks) {
+        console.warn("ランドマークの形式が想定と異なります。");
+        return null;
+    }
+
+    console.table(keyLandmarks);
+    return keyLandmarks;
+}
+
 function getStableGesture() {
     const historyLength = gestureHistory.length;
     if (historyLength === 0) {
@@ -288,6 +344,16 @@ function classifyGesture(landmarks) {
     const wristsAboveHead = isLandmarkVisible(nose) &&
         leftArmVisible && rightArmVisible &&
         leftWrist.y < nose.y && rightWrist.y < nose.y;
+    const leftArmOutward = leftArmVisible && leftWrist.x < leftShoulder.x - torsoWidth * 0.12 && leftElbow.x < leftShoulder.x - torsoWidth * 0.05;
+    const rightArmOutward = rightArmVisible && rightWrist.x > rightShoulder.x + torsoWidth * 0.12 && rightElbow.x > rightShoulder.x + torsoWidth * 0.05;
+    const elbowsAboveShoulders = leftArmVisible && rightArmVisible &&
+        leftElbow.y < leftShoulder.y - 0.03 &&
+        rightElbow.y < rightShoulder.y - 0.03;
+    const wristsSpreadWide = Math.abs(leftWrist.x - rightWrist.x) > torsoWidth * 1.15;
+
+    if (leftHandRaised && rightHandRaised && wristsAboveHead && elbowsAboveShoulders && leftArmOutward && rightArmOutward && wristsSpreadWide) {
+        return "y_pose";
+    }
 
     if (leftHandRaised && rightHandRaised && wristsAboveHead) {
         return "banzai";
@@ -353,6 +419,9 @@ function applyGestureStatus(gesture, poseCount) {
         case "t_pose":
             setStatus("Tポーズを認識しました！", "#60a5fa");
             break;
+        case "y_pose":
+            setStatus("Yポーズを認識しました！", "#fbbf24");
+            break;
         case "cross_arms":
             setStatus("クロスポーズを認識しました！", "#f472b6");
             break;
@@ -379,6 +448,7 @@ function resetHandStatus() {
     updatePoseLabelText("unknown");
     lastStableGesture = null;
     lastStableTimestamp = 0;
+    latestPrimaryLandmarks = null;
     emitPoseChange("unknown");
 }
 
@@ -427,7 +497,7 @@ async function detectPose() {
 
         if (poseCount === 1) {
             const primaryLandmarks = results.landmarks[0];
-
+            latestPrimaryLandmarks = primaryLandmarks;
             // 骨格を描画
             drawSkeleton(primaryLandmarks);
 
@@ -438,6 +508,7 @@ async function detectPose() {
             updateGestureDisplay(gesture, poseCount);
         } else if (poseCount > 1) {
             const primaryLandmarks = results.landmarks[0];
+            latestPrimaryLandmarks = primaryLandmarks;
             drawSkeleton(primaryLandmarks);
             drawLandmarks(primaryLandmarks);
 
@@ -453,6 +524,7 @@ async function detectPose() {
 
             emitPoseChange("unknown");
         } else {
+            latestPrimaryLandmarks = null;
             resetHandStatus();
         }
         canvasCtx.restore();
@@ -582,6 +654,7 @@ async function dispose() {
     clearGestureHistory();
     lastStableGesture = null;
     lastStableTimestamp = 0;
+    latestPrimaryLandmarks = null;
 
     video = null;
     canvasElement = null;
@@ -643,6 +716,8 @@ async function initialize() {
 
 globalThis.initializeMotionCapture = initialize;
 globalThis.disposeMotionCapture = dispose;
+globalThis.logUpperBodyLandmarks = logUpperBodyLandmarks;
+globalThis.getUpperBodyLandmarks = () => extractUpperBodyLandmarks(latestPrimaryLandmarks);
 
 // ページロード時に初期化
 //window.addEventListener('DOMContentLoaded', initialize);
