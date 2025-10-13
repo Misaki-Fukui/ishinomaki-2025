@@ -19,7 +19,7 @@ export default function QuestionContentView({ content }: Props) {
     title,
     question,
     choices,
-    timerSeconds = 5,
+    timerSeconds = 30,
     progressLabel,
     nextHref,
     nextLabel = "回答する",
