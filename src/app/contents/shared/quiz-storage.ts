@@ -2,7 +2,7 @@
 
 import { questionContents } from "./content-data";
 
-export const QUESTIONS_PER_SESSION = 11;
+export const QUESTIONS_PER_SESSION = 5;
 
 const SCOREBOARD_KEY = "ishinomaki-quiz-scoreboard-v1";
 const SCOREBOARD_LIMIT = 20;
