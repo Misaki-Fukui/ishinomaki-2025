@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { MotionCaptureProvider } from "../../components/MotionCaptureContext";
@@ -28,6 +28,14 @@ export default function QuestionContentView({ content }: Props) {
 
   const router = useRouter();
   const [selectedChoiceId, setSelectedChoiceId] = useState<string | null>(null);
+  const autoAdvanceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearAutoAdvanceTimer = useCallback(() => {
+    if (autoAdvanceTimerRef.current !== null) {
+      clearTimeout(autoAdvanceTimerRef.current);
+      autoAdvanceTimerRef.current = null;
+    }
+  }, []);
 
   useEffect(() => {
     const stored = getStoredAnswer(id);
@@ -36,7 +44,24 @@ export default function QuestionContentView({ content }: Props) {
     } else {
       setSelectedChoiceId(null);
     }
-  }, [id]);
+    clearAutoAdvanceTimer();
+  }, [clearAutoAdvanceTimer, id]);
+
+  useEffect(() => {
+    if (!nextHref) {
+      return undefined;
+    }
+
+    clearAutoAdvanceTimer();
+
+    autoAdvanceTimerRef.current = setTimeout(() => {
+      router.push(nextHref);
+    }, Math.max(timerSeconds, 0) * 1000);
+
+    return () => {
+      clearAutoAdvanceTimer();
+    };
+  }, [clearAutoAdvanceTimer, id, nextHref, router, timerSeconds]);
 
   const handleSelect = useCallback(
     (choiceId: string) => {
@@ -46,12 +71,13 @@ export default function QuestionContentView({ content }: Props) {
 
       recordAnswer(id, choiceId, choiceId === correctChoiceId);
       setSelectedChoiceId(choiceId);
+      clearAutoAdvanceTimer();
 
       if (nextHref) {
         router.push(nextHref);
       }
     },
-    [correctChoiceId, id, nextHref, router, selectedChoiceId],
+    [clearAutoAdvanceTimer, correctChoiceId, id, nextHref, router, selectedChoiceId],
   );
 
   const selectedChoiceLabel = useMemo(() => {

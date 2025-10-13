@@ -181,14 +181,13 @@ export const answerContents: Record<string, AnswerContent> = {
     image: Answer11Image,
     orientation: "landscape",
     nextHref: "/contents/Ranking2",
-    nextLabel: "ランキングへ",
   },
 };
 
 export const questionContents: Record<string, QuestionContent> = {
   Question1: {
     id: "Question1",
-    title: "第1問",
+    title: "問題",
     question:
       "石巻市にある「石ノ森萬画館」は、以下の誰を記念し建設しましたか？",
     choices: [
@@ -204,7 +203,7 @@ export const questionContents: Record<string, QuestionContent> = {
   },
   Question2: {
     id: "Question2",
-    title: "第2問",
+    title: "問題",
     question:
       "石巻ラーメンの出汁（だし）のベースとして、最も伝統的で多く使われているのは以下のどれですか？",
     choices: [
@@ -220,7 +219,7 @@ export const questionContents: Record<string, QuestionContent> = {
   },
   Question3: {
     id: "Question3",
-    title: "第3問",
+    title: "問題",
     question:
       "以下の選択肢の中で、石巻の「日本遺産」にも認定されている歴史的な名所・道はどれですか？",
     choices: [
@@ -236,7 +235,7 @@ export const questionContents: Record<string, QuestionContent> = {
   },
   Question4: {
     id: "Question4",
-    title: "第4問",
+    title: "問題",
     question:
       "皆さんは「TheGrandHotel」で食べた朝食の中で、石巻の名物は以下のどれですか？",
     choices: [
@@ -252,7 +251,7 @@ export const questionContents: Record<string, QuestionContent> = {
   },
   Question5: {
     id: "Question5",
-    title: "第5問",
+    title: "問題",
     question:
       "ギネス世界記録に「最も長い魚市場」として認定されている、全長875.47メートルを誇る日本の魚市場はどこでしょう？",
     choices: [
@@ -268,7 +267,7 @@ export const questionContents: Record<string, QuestionContent> = {
   },
   Question6: {
     id: "Question6",
-    title: "第6問",
+    title: "問題",
     question:
       "三陸沖の金華山周辺で獲れる、特に脂の乗りが良いことで知られ、石巻の高級ブランドとして有名なサバは何と呼ばれていますか？",
     choices: [
@@ -283,7 +282,7 @@ export const questionContents: Record<string, QuestionContent> = {
   },
   Question7: {
     id: "Question7",
-    title: "第7問",
+    title: "問題",
     question:
       "石巻市出身で、『サイボーグ009』や『仮面ライダー』など数多くの人気作品を生み出した、日本の有名な漫画家は誰でしょう？",
     choices: [
@@ -298,7 +297,7 @@ export const questionContents: Record<string, QuestionContent> = {
   },
   Question8: {
     id: "Question8",
-    title: "第8問",
+    title: "問題",
     question: "石巻のお土産として有名なもちもちおまんじゅうは何でしょう？",
     choices: [
       { id: "a", label: "赤飯まんじゅう" },
@@ -312,7 +311,7 @@ export const questionContents: Record<string, QuestionContent> = {
   },
   Question9: {
     id: "Question9",
-    title: "第9問",
+    title: "問題",
     question:
       "慶長遣欧使節団がヨーロッパへ向けて出航した、石巻の港の名前は何でしょう？",
     choices: [
@@ -327,7 +326,7 @@ export const questionContents: Record<string, QuestionContent> = {
   },
   Question10: {
     id: "Question10",
-    title: "第10問",
+    title: "問題",
     question:
       "慶長遣欧使節団を乗せ、石巻からヨーロッパへ向けて出航したガレオン船を復元した船の名前は何でしょう？",
     choices: [
@@ -342,7 +341,7 @@ export const questionContents: Record<string, QuestionContent> = {
   },
   Question11: {
     id: "Question11",
-    title: "第11問",
+    title: "問題",
     question:
       "江戸時代初期、伊達政宗の命を受け、ヨーロッパへ渡った使節団が乗った復元船が展示されていた博物館は何でしょう？",
     choices: [
