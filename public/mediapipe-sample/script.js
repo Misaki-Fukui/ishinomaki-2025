@@ -28,7 +28,7 @@ const GESTURE_STABLE_RATIO = 0.6;
 const GESTURE_HOLD_MS = 1600;
 const GESTURE_LABEL_STYLES = {
     banzai: {
-        text: "バンザイ",
+        text: "Yポーズ",
         color: "#34d399",
         shadow: "0 10px 22px rgba(52, 211, 153, 0.35)",
         opacity: 1
@@ -355,11 +355,9 @@ function classifyGesture(landmarks) {
         return "y_pose";
     }
 
-    /*
     if (leftHandRaised && rightHandRaised && wristsAboveHead) {
         return "banzai";
     }
-    */
 
     if (leftArmVisible && rightArmVisible) {
         const leftHorizontalReach = horizontalDistance(leftWrist, leftShoulder);
@@ -416,7 +414,8 @@ function applyGestureStatus(gesture, poseCount) {
 
     switch (gesture) {
         case "banzai":
-            setStatus("バンザイを認識しました！", "#34d399");
+            //ごまかし
+            setStatus("Yポーズを認識しました！", "#34d399");
             break;
         case "t_pose":
             setStatus("Tポーズを認識しました！", "#60a5fa");
