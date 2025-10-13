@@ -177,7 +177,7 @@ export default function AnswerContentView({ content }: Props) {
         </div>
 
         {image ? (
-          <div className="mx-auto flex flex-shrink-0 items-center justify-center rounded-3xl border border-dashed border-violet-200/60 bg-violet-50/60 p-4">
+          <div className="mx-auto flex w-[30%] flex-shrink-0 items-center justify-center rounded-3xl border border-dashed border-violet-200/60 bg-violet-50/60 p-4">
             <div
               className={[
                 "relative h-full w-full overflow-hidden rounded-2xl",
