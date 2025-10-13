@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { MotionCaptureProvider } from "../../components/MotionCaptureContext";
 import MotionCaptureEmbed from "../../components/MotionCaptureEmbed";
 import QuestionChoices from "../../components/QuestionChoices";
@@ -25,6 +26,7 @@ export default function QuestionContentView({ content }: Props) {
     correctChoiceId,
   } = content;
 
+  const router = useRouter();
   const [selectedChoiceId, setSelectedChoiceId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -38,16 +40,18 @@ export default function QuestionContentView({ content }: Props) {
 
   const handleSelect = useCallback(
     (choiceId: string) => {
-      setSelectedChoiceId((previous) => {
-        if (previous === choiceId) {
-          return previous;
-        }
+      if (choiceId === selectedChoiceId) {
+        return;
+      }
 
-        recordAnswer(id, choiceId, choiceId === correctChoiceId);
-        return choiceId;
-      });
+      recordAnswer(id, choiceId, choiceId === correctChoiceId);
+      setSelectedChoiceId(choiceId);
+
+      if (nextHref) {
+        router.push(nextHref);
+      }
     },
-    [correctChoiceId, id],
+    [correctChoiceId, id, nextHref, router, selectedChoiceId],
   );
 
   const selectedChoiceLabel = useMemo(() => {
