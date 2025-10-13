@@ -1,5 +1,9 @@
 'use client';
 
+import { questionContents } from "./content-data";
+
+export const QUESTIONS_PER_SESSION = 5;
+
 export type StoredAnswer = {
   choiceId: string;
   correct: boolean;
@@ -12,10 +16,20 @@ export type QuizProgress = {
   teamName?: string;
   startedAt?: number;
   elapsedSeconds?: number;
+  questionOrder: string[];
+  totalQuestions: number;
 };
 
 const STORAGE_KEY = "ishinomaki-quiz-progress";
-const EMPTY_PROGRESS: QuizProgress = { answers: {}, score: 0 };
+const EMPTY_PROGRESS: QuizProgress = {
+  answers: {},
+  score: 0,
+  teamName: undefined,
+  startedAt: undefined,
+  elapsedSeconds: undefined,
+  questionOrder: [],
+  totalQuestions: QUESTIONS_PER_SESSION,
+};
 
 function readFromStorage(): QuizProgress {
   if (typeof window === "undefined") {
@@ -52,12 +66,28 @@ function readFromStorage(): QuizProgress {
         ? Math.max(0, Math.round(parsed.elapsedSeconds))
         : undefined;
 
+    const sanitizedQuestionOrder = Array.isArray(parsed.questionOrder)
+      ? parsed.questionOrder.filter(
+          (value): value is string => typeof value === "string" && value.length > 0,
+        )
+      : [];
+
+    const sanitizedTotalQuestions =
+      typeof parsed.totalQuestions === "number" &&
+      Number.isFinite(parsed.totalQuestions)
+        ? Math.max(0, Math.round(parsed.totalQuestions))
+        : sanitizedQuestionOrder.length > 0
+          ? sanitizedQuestionOrder.length
+          : QUESTIONS_PER_SESSION;
+
     return {
       score: Number.isFinite(parsed.score ?? NaN) ? (parsed.score as number) : 0,
       answers: parsed.answers,
       teamName: sanitizedTeamName.length > 0 ? sanitizedTeamName : undefined,
       startedAt: sanitizedStartedAt,
       elapsedSeconds: sanitizedElapsedSeconds,
+      questionOrder: sanitizedQuestionOrder,
+      totalQuestions: sanitizedTotalQuestions,
     };
   } catch {
     return EMPTY_PROGRESS;
@@ -79,27 +109,35 @@ function writeToStorage(progress: QuizProgress) {
 export function readQuizProgress(): QuizProgress {
   const progress = readFromStorage();
 
-  if (!progress.answers || typeof progress.answers !== "object") {
-    return {
-      answers: {},
-      score: 0,
-      teamName: progress.teamName,
-      startedAt: progress.startedAt,
-      elapsedSeconds: progress.elapsedSeconds,
-    };
-  }
+  const answers =
+    progress.answers && typeof progress.answers === "object" ? progress.answers : {};
 
-  if (!Number.isFinite(progress.score)) {
-    return {
-      answers: progress.answers,
-      score: Object.values(progress.answers).filter((answer) => answer?.correct).length,
-      teamName: progress.teamName,
-      startedAt: progress.startedAt,
-      elapsedSeconds: progress.elapsedSeconds,
-    };
-  }
+  const score = Number.isFinite(progress.score)
+    ? progress.score
+    : Object.values(answers).filter((answer) => answer?.correct).length;
 
-  return progress;
+  const questionOrder = Array.isArray(progress.questionOrder)
+    ? progress.questionOrder.filter(
+        (value): value is string => typeof value === "string" && value.length > 0,
+      )
+    : [];
+
+  const totalQuestions =
+    typeof progress.totalQuestions === "number" && Number.isFinite(progress.totalQuestions)
+      ? Math.max(0, Math.round(progress.totalQuestions))
+      : questionOrder.length > 0
+        ? questionOrder.length
+        : QUESTIONS_PER_SESSION;
+
+  return {
+    answers,
+    score,
+    teamName: progress.teamName,
+    startedAt: progress.startedAt,
+    elapsedSeconds: progress.elapsedSeconds,
+    questionOrder,
+    totalQuestions,
+  };
 }
 
 export function recordAnswer(
@@ -123,6 +161,8 @@ export function recordAnswer(
     teamName: current.teamName,
     startedAt: current.startedAt,
     elapsedSeconds: current.elapsedSeconds,
+    questionOrder: current.questionOrder,
+    totalQuestions: current.totalQuestions,
   };
   writeToStorage(nextProgress);
   return nextProgress;
@@ -155,19 +195,39 @@ export function setTeamName(teamName: string): QuizProgress {
     teamName: normalized.length > 0 ? normalized : undefined,
     startedAt: current.startedAt,
     elapsedSeconds: current.elapsedSeconds,
+    questionOrder: current.questionOrder,
+    totalQuestions: current.totalQuestions,
   };
   writeToStorage(nextProgress);
   return nextProgress;
 }
 
+function selectRandomQuestionOrder(count: number): string[] {
+  const available = Object.keys(questionContents);
+  if (available.length <= count) {
+    return available.slice();
+  }
+
+  const shuffled = available.slice();
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
+  }
+
+  return shuffled.slice(0, Math.min(count, shuffled.length));
+}
+
 export function initializeQuizSession(teamName: string): QuizProgress {
   const normalized = teamName.trim();
+  const questionOrder = selectRandomQuestionOrder(QUESTIONS_PER_SESSION);
   const nextProgress: QuizProgress = {
     answers: {},
     score: 0,
     teamName: normalized.length > 0 ? normalized : undefined,
     startedAt: Date.now(),
     elapsedSeconds: undefined,
+    questionOrder,
+    totalQuestions: questionOrder.length,
   };
   writeToStorage(nextProgress);
   return nextProgress;

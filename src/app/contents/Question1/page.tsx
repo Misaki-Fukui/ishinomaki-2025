@@ -1,5 +1,5 @@
-import { QuestionContentView, questionContents } from "../shared";
+import QuestionStepView from "../shared/QuestionStepView";
 
 export default function Question1Page() {
-  return <QuestionContentView content={questionContents.Question1} />;
+  return <QuestionStepView stepIndex={0} />;
 }

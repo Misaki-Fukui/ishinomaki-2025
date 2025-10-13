@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { RankingContent } from "./types";
 import { questionContents } from "./content-data";
-import { finalizeQuizRun } from "./quiz-storage";
+import { QUESTIONS_PER_SESSION, finalizeQuizRun } from "./quiz-storage";
 
 type Props = { content: RankingContent };
 
@@ -28,7 +28,16 @@ export default function RankingContentView({ content }: Props) {
       return;
     }
 
-    const totalQuestions = Object.keys(questionContents).length;
+    const availableQuestions = Object.keys(questionContents).length;
+    const fallbackTotal =
+      availableQuestions > 0
+        ? Math.min(availableQuestions, QUESTIONS_PER_SESSION)
+        : QUESTIONS_PER_SESSION;
+
+    const totalQuestions =
+      typeof progress.totalQuestions === "number" && progress.totalQuestions > 0
+        ? progress.totalQuestions
+        : fallbackTotal;
 
     setTeamEntry({
       teamName: progress.teamName,

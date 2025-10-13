@@ -1,5 +1,5 @@
-import { AnswerContentView, answerContents } from "../shared";
+import AnswerStepView from "../shared/AnswerStepView";
 
 export default function Answer3Page() {
-  return <AnswerContentView content={answerContents.Answer3} />;
+  return <AnswerStepView stepIndex={2} />;
 }

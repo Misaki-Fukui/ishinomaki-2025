@@ -5,7 +5,11 @@ import Image from "next/image";
 import Link from "next/link";
 import type { AnswerContent } from "./types";
 import { questionContents } from "./content-data";
-import { readQuizProgress, recordAnswer } from "./quiz-storage";
+import {
+  QUESTIONS_PER_SESSION,
+  readQuizProgress,
+  recordAnswer,
+} from "./quiz-storage";
 
 type Props = {
   content: AnswerContent;
@@ -24,9 +28,8 @@ type EvaluationState = {
   selectedChoiceLabel: string | null;
   isCorrect: boolean | null;
   score: number;
+  totalQuestions: number;
 };
-
-const TOTAL_QUESTIONS = Object.keys(questionContents).length;
 
 export default function AnswerContentView({ content }: Props) {
   const {
@@ -46,6 +49,7 @@ export default function AnswerContentView({ content }: Props) {
     selectedChoiceLabel: null,
     isCorrect: null,
     score: 0,
+    totalQuestions: QUESTIONS_PER_SESSION,
   });
 
   const question = questionContents[questionId];
@@ -89,6 +93,10 @@ export default function AnswerContentView({ content }: Props) {
       selectedChoiceLabel,
       isCorrect,
       score: nextScore,
+      totalQuestions:
+        typeof progress.totalQuestions === "number" && progress.totalQuestions > 0
+          ? progress.totalQuestions
+          : QUESTIONS_PER_SESSION,
     });
   }, [questionId]);
 
@@ -150,7 +158,7 @@ export default function AnswerContentView({ content }: Props) {
           <div className="rounded-2xl bg-white/70 px-4 py-3 shadow-sm md:col-span-2">
             <p className="text-xs font-semibold text-gray-500">現在のスコア</p>
             <p className="mt-1 text-lg font-semibold text-[#4d3ab9]">
-              {evaluation.score} / {TOTAL_QUESTIONS}
+              {evaluation.score} / {evaluation.totalQuestions}
             </p>
           </div>
         </div>
