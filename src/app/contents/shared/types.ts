@@ -1,10 +1,12 @@
+import type { StaticImageData } from "next/image";
+
 export type AnswerContent = {
   id: string;
   questionId: string;
   shortAnswer: string;
   lead: string;
   paragraphs: string[];
-  image?: string;
+  image?: string | StaticImageData;
   imageAlt?: string;
   orientation?: "portrait" | "landscape";
   nextHref?: string;
@@ -21,7 +23,7 @@ export type QuestionContent = {
   title: string;
   question: string;
   choices: QuestionChoice[];
-  image?: string;
+  image?: string | StaticImageData;
   imageAlt?: string;
   timerSeconds?: number;
   progressLabel?: string;

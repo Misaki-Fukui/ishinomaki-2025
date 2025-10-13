@@ -5,6 +5,17 @@ import type {
   QuestionContent,
   RankingContent,
 } from "./types";
+import Answer1Image from "../Answer1/image.png";
+import Answer2Image from "../Answer2/image.png";
+import Answer3Image from "../Answer3/image.png";
+import Answer4Image from "../Answer4/image.png";
+import Answer5Image from "../Answer5/image.png";
+import Answer6Image from "../Answer6/image.png";
+import Answer7Image from "../Answer7/image.png";
+import Answer8Image from "../Answer8/image.png";
+import Answer9Image from "../Answer9/image.png";
+import Answer10Image from "../Answer10/image.png";
+import Answer11Image from "../Answer11/image.png";
 
 // Data maps keyed by directory name (e.g. "Answer1", "Question3").
 export const answerContents: Record<string, AnswerContent> = {
@@ -18,7 +29,7 @@ export const answerContents: Record<string, AnswerContent> = {
       "石ノ森萬画館は、このような萬画家（マンガ家）石ノ森章太郎先生の作品と理念を通して、来館した方々に石ノ森先生の数々の作品をあらゆる角度からご覧いただく事で、マンガの可能性を体験し学んでもらう事を目的としたマンガミュージアムとなっています。",
       "石ノ森萬画館外観は石ノ森章太郎原案の宇宙船をイメージして建設された。",
     ],
-    image: "/contents/Answer1/image.png",
+    image: Answer1Image,
     imageAlt: "石ノ森萬画館の外観",
     orientation: "portrait",
     nextHref: "/contents/Question2",
@@ -34,7 +45,7 @@ export const answerContents: Record<string, AnswerContent> = {
       "そのため、昔からサバのうま味を生かしたスープが作られてきました。",
       "あっさりしていながらコクがある味わいが、石巻ラーメンの魅力です。",
     ],
-    image: "/contents/Answer2/image.png",
+    image: Answer2Image,
     orientation: "landscape",
     nextHref: "/contents/Question3",
   },
@@ -50,7 +61,7 @@ export const answerContents: Record<string, AnswerContent> = {
       "② 産金の歴史との深いつながり",
       "金華山は日本最古の金産出地のひとつとされ、奈良・平安時代から「黄金の国ジパング」と呼ばれるきっかけとなった地域。金華山道はその産金と信仰を結ぶ象徴的な道です。",
     ],
-    image: "/contents/Answer3/image.png",
+    image: Answer3Image,
     orientation: "landscape",
     nextHref: "/contents/Question4",
   },
@@ -65,7 +76,7 @@ export const answerContents: Record<string, AnswerContent> = {
       "・ふわふわでプリプリとした食感が特徴。",
       "・魚本来の旨みと甘みを引き出した、絶妙な味わいが楽しめる。",
     ],
-    image: "/contents/Answer4/image.png",
+    image: Answer4Image,
     orientation: "landscape",
     nextHref: "/contents/Question5",
   },
@@ -83,7 +94,7 @@ export const answerContents: Record<string, AnswerContent> = {
       "・サバ（通年）",
       "・イワシ、サケ、ホヤ、カレイ、タコ、スルメイカなど",
     ],
-    image: "/contents/Answer5/image.png",
+    image: Answer5Image,
     orientation: "portrait",
     nextHref: "/contents/Question6",
   },
@@ -97,7 +108,7 @@ export const answerContents: Record<string, AnswerContent> = {
       "・地域ブランド: 宮城県石巻市の漁港で水揚げされる、一定の基準を満たしたサバだけが、このブランド名で呼ばれます。",
       "・特徴: 通常のサバよりもはるかに高い脂質含有量を持ち、その品質の高さから、石巻の高級ブランド魚として全国的に有名です。",
     ],
-    image: "/contents/Answer6/image.png",
+    image: Answer6Image,
     orientation: "portrait",
     nextHref: "/contents/Question7",
   },
@@ -111,7 +122,7 @@ export const answerContents: Record<string, AnswerContent> = {
       "SF、ギャグ、時代劇、少女漫画など、あらゆるジャンルで革新的な作品を発表し、「漫画の王様」とも呼ばれました。",
       "『サイボーグ009』や『仮面ライダー』シリーズの生みの親として特に有名です。",
     ],
-    image: "/contents/Answer7/image.png",
+    image: Answer7Image,
     orientation: "portrait",
     nextHref: "/contents/Question8",
   },
@@ -126,7 +137,7 @@ export const answerContents: Record<string, AnswerContent> = {
       "・ふんわりと優しい甘さの薄皮と、モチモチとしたお赤飯の食感が組み合わさっている。",
       "・甘さと、お赤飯の持つ程よい塩気が絶妙なバランスを生み出している。",
     ],
-    image: "/contents/Answer8/image.png",
+    image: Answer8Image,
     orientation: "landscape",
     nextHref: "/contents/Question9",
   },
@@ -139,7 +150,7 @@ export const answerContents: Record<string, AnswerContent> = {
       "1613年、伊達政宗が派遣した慶長遣欧使節団は、支倉常長らを乗せた船「サン・ファン・バウティスタ号」で、石巻港からメキシコ・スペインへと出航しました。",
       "この航海は、日本とヨーロッパを結ぶ歴史的な大航海として知られ、石巻はその出発地として重要な役割を果たしました。",
     ],
-    image: "/contents/Answer9/image.png",
+    image: Answer9Image,
     orientation: "landscape",
     nextHref: "/contents/Question10",
   },
@@ -153,7 +164,7 @@ export const answerContents: Record<string, AnswerContent> = {
       "この船は、1613年に伊達政宗の命で建造され、支倉常長らを乗せて太平洋を渡りました。",
       "現在は石巻市の「サン・ファン館」で復元船が展示されており、日本と世界を結んだ歴史を伝えています。",
     ],
-    image: "/contents/Answer10/image.png",
+    image: Answer10Image,
     orientation: "portrait",
     nextHref: "/contents/Question11",
   },
@@ -167,7 +178,7 @@ export const answerContents: Record<string, AnswerContent> = {
       "ここでは、支倉常長らが乗ってヨーロッパへ旅立ったガレオン船「サン・ファン・バウティスタ号」の実物大復元船が展示されていました。",
       "展示館内では、当時の造船技術、航海の記録、国際交流の歴史などがわかりやすく紹介され、日本と世界を繋いだ壮大な冒険の物語を体感できる施設として人気があります。",
     ],
-    image: "/contents/Answer11/image.png",
+    image: Answer11Image,
     orientation: "landscape",
     nextHref: "/contents/Ranking2",
     nextLabel: "ランキングへ",
