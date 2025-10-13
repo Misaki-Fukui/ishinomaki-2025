@@ -85,8 +85,7 @@ export const answerContents: Record<string, AnswerContent> = {
     ],
     image: "/contents/Answer5/image.png",
     orientation: "portrait",
-    nextHref: "/contents/Ranking1",
-    nextLabel: "ランキングへ",
+    nextHref: "/contents/Question6",
   },
   Answer6: {
     id: "Answer6",
@@ -187,14 +186,14 @@ export const questionContents: Record<string, QuestionContent> = {
       { id: "c", label: "石ノ森萬太郎" },
     ],
     image: "/contents/Question1/image-3.png",
-    progressLabel: "質問 1/5",
+    progressLabel: "質問 1/11",
     timerSeconds: 5,
     nextHref: "/contents/Answer1",
     correctChoiceId: "b",
   },
   Question2: {
     id: "Question2",
-    title: "質問 2/5",
+    title: "第2問",
     question:
       "石巻ラーメンの出汁（だし）のベースとして、最も伝統的で多く使われているのは以下のどれですか？",
     choices: [
@@ -203,13 +202,14 @@ export const questionContents: Record<string, QuestionContent> = {
       { id: "c", label: "サバ" },
     ],
     image: "/contents/Question2/image-3.png",
+    progressLabel: "質問 2/11",
     timerSeconds: 5,
     nextHref: "/contents/Answer2",
     correctChoiceId: "c",
   },
   Question3: {
     id: "Question3",
-    title: "質問 3/5",
+    title: "第3問",
     question:
       "以下の選択肢の中で、石巻の「日本遺産」にも認定されている歴史的な名所・道はどれですか？",
     choices: [
@@ -218,13 +218,14 @@ export const questionContents: Record<string, QuestionContent> = {
       { id: "c", label: "永巌寺" },
     ],
     image: "/contents/Question3/image-3.png",
+    progressLabel: "質問 3/11",
     timerSeconds: 5,
     nextHref: "/contents/Answer3",
     correctChoiceId: "b",
   },
   Question4: {
     id: "Question4",
-    title: "質問 4/5",
+    title: "第4問",
     question:
       "皆さんは「TheGrandHotel」で食べた朝食の中で、石巻の名物は以下のどれですか？",
     choices: [
@@ -233,13 +234,14 @@ export const questionContents: Record<string, QuestionContent> = {
       { id: "c", label: "ひじき煮" },
     ],
     image: "/contents/Question4/image-3.png",
+    progressLabel: "質問 4/11",
     timerSeconds: 5,
     nextHref: "/contents/Answer4",
     correctChoiceId: "b",
   },
   Question5: {
     id: "Question5",
-    title: "質問 5/5",
+    title: "第5問",
     question:
       "ギネス世界記録に「最も長い魚市場」として認定されている、全長875.47メートルを誇る日本の魚市場はどこでしょう？",
     choices: [
@@ -248,6 +250,7 @@ export const questionContents: Record<string, QuestionContent> = {
       { id: "c", label: "北海道の函館朝市" },
     ],
     image: "/contents/Question5/image-3.png",
+    progressLabel: "質問 5/11",
     timerSeconds: 5,
     nextHref: "/contents/Answer5",
     correctChoiceId: "b",
@@ -384,11 +387,11 @@ export const rankingContents: Record<string, RankingContent> = {
     title: "石巻に移住しちゃう ?",
     subtitle: "チームのスコアを確認してみましょう",
     entries: [
-      { teamName: "Team 1", correctCount: 5, totalQuestions: 5, elapsedSeconds: 42 },
-      { teamName: "Team 2", correctCount: 4, totalQuestions: 5, elapsedSeconds: 55 },
-      { teamName: "Team 3", correctCount: 4, totalQuestions: 5, elapsedSeconds: 63 },
-      { teamName: "Team 4", correctCount: 3, totalQuestions: 5, elapsedSeconds: 58 },
-      { teamName: "Team 5", correctCount: 2, totalQuestions: 5, elapsedSeconds: 71 },
+      { teamName: "Team 1", correctCount: 5, totalQuestions: 11, elapsedSeconds: 42 },
+      { teamName: "Team 2", correctCount: 4, totalQuestions: 11, elapsedSeconds: 55 },
+      { teamName: "Team 3", correctCount: 4, totalQuestions: 11, elapsedSeconds: 63 },
+      { teamName: "Team 4", correctCount: 3, totalQuestions: 11, elapsedSeconds: 58 },
+      { teamName: "Team 5", correctCount: 2, totalQuestions: 11, elapsedSeconds: 71 },
     ],
     nextHref: "/",
     nextLabel: "ホームへ戻る",
@@ -399,11 +402,11 @@ export const rankingContents: Record<string, RankingContent> = {
     title: "ランキング",
     subtitle: "参加チームの成績一覧",
     entries: [
-      { teamName: "Blue Ocean", correctCount: 5, totalQuestions: 5, elapsedSeconds: 40 },
-      { teamName: "Ishinomaki Stars", correctCount: 4, totalQuestions: 5, elapsedSeconds: 47 },
-      { teamName: "Manga Lovers", correctCount: 4, totalQuestions: 5, elapsedSeconds: 52 },
-      { teamName: "San Juan", correctCount: 3, totalQuestions: 5, elapsedSeconds: 60 },
-      { teamName: "Team Dolphin", correctCount: 2, totalQuestions: 5, elapsedSeconds: 75 },
+      { teamName: "Blue Ocean", correctCount: 5, totalQuestions: 11, elapsedSeconds: 40 },
+      { teamName: "Ishinomaki Stars", correctCount: 4, totalQuestions: 11, elapsedSeconds: 47 },
+      { teamName: "Manga Lovers", correctCount: 4, totalQuestions: 11, elapsedSeconds: 52 },
+      { teamName: "San Juan", correctCount: 3, totalQuestions: 11, elapsedSeconds: 60 },
+      { teamName: "Team Dolphin", correctCount: 2, totalQuestions: 11, elapsedSeconds: 75 },
     ],
     nextHref: "/",
     nextLabel: "トップページへ",

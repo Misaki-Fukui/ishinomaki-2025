@@ -2,7 +2,7 @@
 
 import { questionContents } from "./content-data";
 
-export const QUESTIONS_PER_SESSION = 5;
+export const QUESTIONS_PER_SESSION = 11;
 
 export type StoredAnswer = {
   choiceId: string;
