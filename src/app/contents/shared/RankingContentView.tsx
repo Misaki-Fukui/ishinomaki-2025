@@ -4,7 +4,13 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { RankingContent } from "./types";
 import { questionContents } from "./content-data";
-import { QUESTIONS_PER_SESSION, finalizeQuizRun } from "./quiz-storage";
+import {
+  QUESTIONS_PER_SESSION,
+  finalizeQuizRun,
+  getScoreboardEntries,
+  recordScoreboardEntry,
+  type ScoreboardEntry,
+} from "./quiz-storage";
 
 type Props = { content: RankingContent };
 
@@ -19,15 +25,11 @@ export default function RankingContentView({ content }: Props) {
   } = content;
 
   const [teamEntry, setTeamEntry] = useState<RankingContent["entries"][number] | null>(null);
+  const [scoreboardEntries, setScoreboardEntries] = useState<ScoreboardEntry[]>([]);
+  const [currentRunId, setCurrentRunId] = useState<number | null>(null);
 
   useEffect(() => {
     const progress = finalizeQuizRun();
-
-    if (!progress.teamName) {
-      setTeamEntry(null);
-      return;
-    }
-
     const availableQuestions = Object.keys(questionContents).length;
     const fallbackTotal =
       availableQuestions > 0
@@ -39,25 +41,75 @@ export default function RankingContentView({ content }: Props) {
         ? progress.totalQuestions
         : fallbackTotal;
 
+    const runId =
+      typeof progress.startedAt === "number" && Number.isFinite(progress.startedAt)
+        ? Math.trunc(progress.startedAt)
+        : null;
+
+    if (!progress.teamName) {
+      setTeamEntry(null);
+      setScoreboardEntries(getScoreboardEntries());
+      setCurrentRunId(null);
+      return;
+    }
+
     setTeamEntry({
       teamName: progress.teamName,
       correctCount: progress.score,
       totalQuestions,
       elapsedSeconds: progress.elapsedSeconds,
     });
-  }, []);
 
-  const entriesWithTeam = useMemo(() => {
-    if (!teamEntry) {
-      return entries;
+    if (runId === null) {
+      setScoreboardEntries(getScoreboardEntries());
+      setCurrentRunId(null);
+      return;
     }
 
-    const filtered = entries.filter(
+    const updatedScoreboard = recordScoreboardEntry({
+      ...progress,
+      totalQuestions,
+    });
+    setScoreboardEntries(updatedScoreboard);
+    setCurrentRunId(runId);
+  }, []);
+
+  const displayEntries = useMemo<ScoreboardEntry[]>(() => {
+    if (scoreboardEntries.length > 0) {
+      return scoreboardEntries;
+    }
+
+    return entries.map((entry, index) => ({
+      runId: -(index + 1),
+      teamName: entry.teamName,
+      correctCount: entry.correctCount,
+      totalQuestions: entry.totalQuestions,
+      elapsedSeconds: entry.elapsedSeconds,
+      finishedAt: index,
+    }));
+  }, [entries, scoreboardEntries]);
+
+  const entriesWithTeam = useMemo(() => {
+    if (scoreboardEntries.length > 0 || !teamEntry) {
+      return displayEntries;
+    }
+
+    const filtered = displayEntries.filter(
       (entry) => entry.teamName !== teamEntry.teamName,
     );
 
-    return [teamEntry, ...filtered];
-  }, [entries, teamEntry]);
+    return [
+      {
+        runId: currentRunId ?? -1,
+        teamName: teamEntry.teamName,
+        correctCount: teamEntry.correctCount,
+        totalQuestions: teamEntry.totalQuestions,
+        elapsedSeconds: teamEntry.elapsedSeconds,
+        finishedAt: Number.MAX_SAFE_INTEGER,
+      },
+      ...filtered,
+    ];
+  }, [currentRunId, displayEntries, scoreboardEntries, teamEntry]);
 
   const formatElapsed = useCallback((seconds?: number) => {
     if (typeof seconds !== "number" || !Number.isFinite(seconds)) {
@@ -115,11 +167,13 @@ export default function RankingContentView({ content }: Props) {
           const isTop3 = index < 3;
           const placement = index + 1;
           const isCurrentTeam =
-            teamEntry && entry.teamName === teamEntry.teamName;
+            currentRunId !== null
+              ? entry.runId === currentRunId
+              : teamEntry && entry.teamName === teamEntry.teamName;
           const elapsedLabel = formatElapsed(entry.elapsedSeconds);
           return (
             <div
-              key={`${entry.teamName}-${index}`}
+              key={`${entry.runId}-${entry.teamName}`}
               className={[
                 "flex flex-col gap-4 rounded-3xl border bg-white px-6 py-5 shadow-sm transition",
                 isCurrentTeam

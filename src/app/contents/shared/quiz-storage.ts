@@ -4,6 +4,123 @@ import { questionContents } from "./content-data";
 
 export const QUESTIONS_PER_SESSION = 11;
 
+const SCOREBOARD_KEY = "ishinomaki-quiz-scoreboard-v1";
+const SCOREBOARD_LIMIT = 20;
+
+export type ScoreboardEntry = {
+  runId: number;
+  teamName: string;
+  correctCount: number;
+  totalQuestions: number;
+  elapsedSeconds?: number;
+  finishedAt: number;
+};
+
+const isFiniteNumber = (value: unknown): value is number =>
+  typeof value === "number" && Number.isFinite(value);
+
+function readScoreboardFromStorage(): ScoreboardEntry[] {
+  if (typeof window === "undefined" || !("sessionStorage" in window)) {
+    return [];
+  }
+
+  try {
+    const raw = window.sessionStorage.getItem(SCOREBOARD_KEY);
+    if (!raw) {
+      return [];
+    }
+
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+
+    const entries: ScoreboardEntry[] = [];
+
+    for (const item of parsed) {
+      if (!item || typeof item !== "object") {
+        continue;
+      }
+
+      const teamName =
+        typeof (item as { teamName?: unknown }).teamName === "string"
+          ? (item as { teamName: string }).teamName.trim()
+          : "";
+
+      const runId = isFiniteNumber((item as { runId?: unknown }).runId)
+        ? Math.trunc((item as { runId: number }).runId)
+        : null;
+
+      const correctCount = isFiniteNumber(
+        (item as { correctCount?: unknown }).correctCount,
+      )
+        ? Math.max(0, Math.trunc((item as { correctCount: number }).correctCount))
+        : null;
+
+      const totalQuestions = isFiniteNumber(
+        (item as { totalQuestions?: unknown }).totalQuestions,
+      )
+        ? Math.max(
+            0,
+            Math.trunc((item as { totalQuestions: number }).totalQuestions),
+          )
+        : null;
+
+      const elapsedSeconds = isFiniteNumber(
+        (item as { elapsedSeconds?: unknown }).elapsedSeconds,
+      )
+        ? Math.max(
+            0,
+            Math.trunc((item as { elapsedSeconds: number }).elapsedSeconds),
+          )
+        : undefined;
+
+      const finishedAt = isFiniteNumber(
+        (item as { finishedAt?: unknown }).finishedAt,
+      )
+        ? Math.max(0, Math.trunc((item as { finishedAt: number }).finishedAt))
+        : null;
+
+      if (
+        teamName.length === 0 ||
+        runId === null ||
+        correctCount === null ||
+        totalQuestions === null ||
+        finishedAt === null
+      ) {
+        continue;
+      }
+
+      entries.push({
+        runId,
+        teamName,
+        correctCount,
+        totalQuestions,
+        elapsedSeconds,
+        finishedAt,
+      });
+    }
+
+    return entries;
+  } catch {
+    return [];
+  }
+}
+
+function writeScoreboardToStorage(entries: ScoreboardEntry[]): ScoreboardEntry[] {
+  if (typeof window === "undefined" || !("sessionStorage" in window)) {
+    return entries;
+  }
+
+  try {
+    window.sessionStorage.setItem(SCOREBOARD_KEY, JSON.stringify(entries));
+  } catch {
+    // Ignore storage failures (e.g. quota exceeded, private mode)
+  }
+
+  return entries;
+}
+
 export type StoredAnswer = {
   choiceId: string;
   correct: boolean;
@@ -138,6 +255,75 @@ export function readQuizProgress(): QuizProgress {
     questionOrder,
     totalQuestions,
   };
+}
+
+export function getScoreboardEntries(): ScoreboardEntry[] {
+  return readScoreboardFromStorage();
+}
+
+export function recordScoreboardEntry(progress: QuizProgress): ScoreboardEntry[] {
+  const entries = readScoreboardFromStorage();
+
+  const teamName =
+    typeof progress.teamName === "string" ? progress.teamName.trim() : "";
+  const runId = isFiniteNumber(progress.startedAt)
+    ? Math.trunc(progress.startedAt)
+    : null;
+
+  if (!teamName || runId === null) {
+    return entries;
+  }
+
+  const availableQuestions = Object.keys(questionContents).length;
+  const normalizedTotal =
+    Number.isFinite(progress.totalQuestions) && progress.totalQuestions > 0
+      ? Math.max(0, Math.trunc(progress.totalQuestions))
+      : availableQuestions;
+
+  const normalizedScore = Number.isFinite(progress.score)
+    ? Math.max(0, Math.trunc(progress.score))
+    : 0;
+
+  const normalizedElapsed =
+    typeof progress.elapsedSeconds === "number" && Number.isFinite(progress.elapsedSeconds)
+      ? Math.max(0, Math.trunc(progress.elapsedSeconds))
+    : undefined;
+
+  const updatedEntry: ScoreboardEntry = {
+    runId,
+    teamName,
+    correctCount: normalizedScore,
+    totalQuestions: normalizedTotal > 0 ? normalizedTotal : availableQuestions,
+    elapsedSeconds: normalizedElapsed,
+    finishedAt: Date.now(),
+  };
+
+  const existingIndex = entries.findIndex((entry) => entry.runId === runId);
+  if (existingIndex >= 0) {
+    entries[existingIndex] = updatedEntry;
+  } else {
+    entries.push(updatedEntry);
+  }
+
+  entries.sort((a, b) => {
+    if (b.correctCount !== a.correctCount) {
+      return b.correctCount - a.correctCount;
+    }
+
+    const aTime =
+      typeof a.elapsedSeconds === "number" ? a.elapsedSeconds : Number.POSITIVE_INFINITY;
+    const bTime =
+      typeof b.elapsedSeconds === "number" ? b.elapsedSeconds : Number.POSITIVE_INFINITY;
+
+    if (aTime !== bTime) {
+      return aTime - bTime;
+    }
+
+    return a.finishedAt - b.finishedAt;
+  });
+
+  const limited = entries.slice(0, SCOREBOARD_LIMIT);
+  return writeScoreboardToStorage(limited);
 }
 
 export function recordAnswer(
